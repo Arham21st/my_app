@@ -4,28 +4,40 @@ import 'package:my_app/Widgets/expandable_text.dart';
 import 'package:my_app/Widgets/product_page_icon.dart';
 import 'package:my_app/colors.dart';
 import 'package:my_app/dimensions.dart';
+import 'package:get/get.dart';
+import 'package:my_app/routes/routes_helper.dart';
+
+import '../../controller/recommended_product_controller.dart';
 
 class RecommendedProducts extends StatelessWidget {
-  const RecommendedProducts({super.key});
+  final int pageId;
+  const RecommendedProducts({super.key, required this.pageId});
 
   @override
   Widget build(BuildContext context) {
+    var product = Get.find<RecommendedProductController>().recommendedProductList[pageId];
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
+            automaticallyImplyLeading: false,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-              productPageIcon(icon: Icons.clear),
+              GestureDetector(
+                onTap: () {
+                  Get.toNamed(RoutesHelper.getInitial());
+                },
+                child: productPageIcon(icon: Icons.clear),
+              ),
               productPageIcon(icon: Icons.shopping_cart_outlined)
             ]),
 
             bottom: PreferredSize(
               child: Container(
                 padding: EdgeInsets.only(top: Dimensions.width10,bottom: Dimensions.width5),
-                child: Center(child:BigText(text: "Recommended Products",size: Dimensions.font26,)),
+                child: Center(child:BigText(text: product.name! ,size: Dimensions.font26,)),
                 width: double.maxFinite,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -53,7 +65,7 @@ class RecommendedProducts extends StatelessWidget {
                   top: Dimensions.height10,
                   right: Dimensions.width10,
                   bottom: Dimensions.height10),
-                  child: expandableText( text: "As an alternative to all those dimensions defined in dimensions.dart, I created this function: scaledHeight(double height) => screenHeight / originalScreenHeight / height, where screenHeight comes from the GetX context, originalScreenHeight is the height of the screen you are designing on (in this case, 844 for the iPhone 12 Pro), and height is the height passed in. So anywhere you need to scale your heigh, just use scaledHeight([height-value])As an alternative to all those dimensions defined in dimensions.dart, I created this function: scaledHeight(double height) => screenHeight / originalScreenHeight / height, where screenHeight comes from the GetX context, originalScreenHeight is the height of the screen you are designing on (in this case, 844 for the iPhone 12 Pro), and height is the height passed in. So anywhere you need to scale your heigh, just use scaledHeight([height-value])As an alternative to all those dimensions defined in dimensions.dart, I created this function: scaledHeight(double height) => screenHeight / originalScreenHeight / height, where screenHeight comes from the GetX context, originalScreenHeight is the height of the screen you are designing on (in this case, 844 for the iPhone 12 Pro), and height is the height passed in. So anywhere you need to scale your heigh, just use scaledHeight([height-valuAs an alternative to all those dimensions defined in dimensions.dart, I created this function: scaledHeight(double height) => screenHeight / originalScreenHeight / height, where screenHeight comes from the GetX context, originalScreenHeight is the height of the screen you are designing on (in this case, 844 for the iPhone 12 Pro), and height is the height passed in. So anywhere you need to scale your heigh, just use scaledHeight([height-value])As an alternative to all those dimensions defined in dimensions.dart, I created this function: scaledHeight(double height) => screenHeight / originalScreenHeight / height, where screenHeight comes from the GetX context, originalScreenHeight is the height of the screen you are designing on (in this case, 844 for the iPhone 12 Pro), and height is the height passed in. So anywhere you need to scale your heigh, just use scaledHeight([height-value])e])"),
+                  child: expandableText( text:product.description! ),
           ),
                 
               ],
@@ -81,7 +93,7 @@ class RecommendedProducts extends StatelessWidget {
                 backgroungColor: AppColors.mainColor,
               ),
               Container(
-                child: BigText(text: "\$12.88 "+ "X "+"0",
+                child: BigText(text: "\$ ${product.price} X 0",
                 color: AppColors.mainBlackColor,
                 size: Dimensions.font26,),
               ),
@@ -135,7 +147,7 @@ class RecommendedProducts extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  BigText(text: "\$0.08 | Add to cart "),
+                  BigText(text: "\$ ${product.price} | Add to cart "),
                   //SizedBox(width: Dimensions.width5,),
                 ],
               ),

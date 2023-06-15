@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:my_app/Screnes/Products/popular_products.dart';
 import 'package:my_app/Widgets/big_Text.dart';
 import 'package:my_app/Widgets/icon_and_text.dart';
 import 'package:my_app/Widgets/product_info.dart';
 import 'package:my_app/Widgets/small_Text.dart';
 import 'package:my_app/colors.dart';
+import 'package:my_app/constants.dart';
+import 'package:my_app/controller/popular_product_controller.dart';
+import 'package:my_app/controller/recommended_product_controller.dart';
 import 'package:my_app/dimensions.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:my_app/models/products_model.dart';
+import 'package:my_app/routes/routes_helper.dart';
 
 class ItemSlider extends StatefulWidget {
   const ItemSlider({super.key});
@@ -16,11 +23,11 @@ class ItemSlider extends StatefulWidget {
 
 class _ItemSliderState extends State<ItemSlider> {
   PageController pageController = PageController(viewportFraction: 0.80);
-  PageController listController = PageController();
+  
   var currentPageValue = 0.0;
   double scaleFactor = 0.8;
   double height = Dimensions.pageViewContainer;
-  double listPosition =0;
+  
 
   @override
   void initState(){
@@ -31,18 +38,13 @@ class _ItemSliderState extends State<ItemSlider> {
       });
     }
     );
-    listController.addListener(() {
-      setState(() {
-        listPosition = listController.page!;
-      });
-    }
-    );
+    
   }
 
   @override
   void dispose(){
     pageController.dispose();
-    listController.dispose();
+    
   }
 
   
@@ -52,22 +54,24 @@ class _ItemSliderState extends State<ItemSlider> {
     return Column(
       children: [
        
-       
-        Container(
+        GetBuilder<PopularProductController>(builder: (popularProducts){
+          return popularProducts.isLoaded?Container(
          //color: Color.fromARGB(255, 202, 193, 230),
           height: Dimensions.pageView,
           child: Stack(
-            children:[ PageView.builder(
+            children:[ 
+              PageView.builder(
               controller: pageController,
-              itemCount: 5,
+              itemCount: popularProducts.popularProductList.length,
               itemBuilder: ( context,position ){
-                  return buildPageItem(position);
+                  return buildPageItem(position, popularProducts.popularProductList[position]);
             } ),
+            
             Align(
               alignment: Alignment.bottomCenter,
               child: DotsIndicator(
                     
-                    dotsCount: 5,
+                    dotsCount: popularProducts.popularProductList.isEmpty?1:popularProducts.popularProductList.length,
                     position: currentPageValue,
                     decorator: DotsDecorator(
                       activeColor: AppColors.mainColor,
@@ -79,7 +83,10 @@ class _ItemSliderState extends State<ItemSlider> {
             )
             ]
           )
-        ),
+        ):CircularProgressIndicator(color: AppColors.mainColor,);
+        
+        }),
+        
         SizedBox(height: Dimensions.height25,),
        
             
@@ -114,15 +121,21 @@ class _ItemSliderState extends State<ItemSlider> {
 
          ),
         SizedBox(height: Dimensions.height10,),
-        ListView.builder(
+        GetBuilder<RecommendedProductController>(builder: (RecommendedProducts){
+          return RecommendedProducts.isLoaded?
+          ListView.builder(
                           //padding: EdgeInsets.only(left:Dimensions.width15 ),
                          // scrollDirection: Axis.horizontal,
                          physics: NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
-                          itemCount: 10,
+                          itemCount: RecommendedProducts.recommendedProductList.length,
                           itemBuilder: (BuildContext context, int index) {
                          
-                              return Column(
+                              return GestureDetector(
+                                onTap: () {
+                                 Get.toNamed(RoutesHelper.getRecommendedProducts(index));
+                                },
+                                child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   BigText(text: "Items",size: Dimensions.width25,),
@@ -138,7 +151,7 @@ class _ItemSliderState extends State<ItemSlider> {
                   
                   physics: AlwaysScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  itemCount: 10, // Replace with your nested list item count
+                  itemCount: RecommendedProducts.recommendedProductList.length, // Replace with your nested list item count
                   itemBuilder: (BuildContext context, int innerIndex) {
                     return Container(
                       //padding: EdgeInsets.all(15),
@@ -151,7 +164,7 @@ class _ItemSliderState extends State<ItemSlider> {
                                   margin: EdgeInsets.only(right: Dimensions.width5),
                                   
                                   child: Center(
-                                    child: Text('Item ', style: TextStyle(color: Colors.white)),
+                                    child: SmallText(text: RecommendedProducts.recommendedProductList[index].name!),
                   ),
                 );
                 
@@ -161,18 +174,20 @@ class _ItemSliderState extends State<ItemSlider> {
                                   SizedBox(height: Dimensions.height15,),
             
                                 ],
+                              )
+                             ,
                               );
-                             
           },
-        ),
+        ):CircularProgressIndicator(color: AppColors.mainColor,);
         
         
+        })
        
         
       ],
     );
   }
-  Widget buildPageItem(int index){
+  Widget buildPageItem(int index, ProductModel popularProduct){
     Matrix4 matrix = new Matrix4.identity();
 
     if(index== currentPageValue.floor()){
@@ -208,7 +223,11 @@ class _ItemSliderState extends State<ItemSlider> {
       child: Stack(
         
         children: [
-           Container(
+           GestureDetector(
+            onTap: () {
+              Get.toNamed(RoutesHelper.getPopularProducts(index));
+            },
+            child: Container(
         height: Dimensions.pageViewContainer,
         margin: EdgeInsets.only(
           left: Dimensions.width10,
@@ -218,9 +237,10 @@ class _ItemSliderState extends State<ItemSlider> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Dimensions.radius30),
           color: index.isEven?AppColors.mainBlackColor: AppColors.titleColor,
-          image: DecorationImage(image: AssetImage('assets/img1.png'),),
+          //image: DecorationImage(image: NetworkImage(AppConstants.baseUrl+"/uploads"+popularProduct.img!),),
         ),
       ),
+           ),
       Align(
         alignment: Alignment.bottomCenter,
            child: Container(
@@ -255,7 +275,7 @@ class _ItemSliderState extends State<ItemSlider> {
                         top: Dimensions.height15,
                         left: Dimensions.width10,
                         right: Dimensions.width10),
-                        child: productInfo(text: "Aeroplane")
+                        child: productInfo(text: popularProduct.name!)
            ),
 
       ),
