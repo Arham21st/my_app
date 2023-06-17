@@ -61,10 +61,10 @@ class popularProducts extends StatelessWidget {
                       productPageIcon(icon: Icons.shopping_cart_outlined),
                       Get.find<PopularProductController>().totalItems>=1?
                       Positioned(
-                        right: 0,
-                        top: 0,
+                        right: 3,
+                        top: 3,
                         child: productPageIcon(icon: Icons.circle,
-                        size: Dimensions.height20,
+                        size: Dimensions.width15,
                         iconColor: Colors.transparent,
                         backgroungColor: AppColors.mainColor,),
                       ):
@@ -73,10 +73,10 @@ class popularProducts extends StatelessWidget {
                       ),
                        Get.find<PopularProductController>().totalItems>=1?
                       Positioned(
-                        right: 2.5,
-                        top: 0,
+                        right: 5,
+                        top: 3,
                         child: BigText(text: controller.totalItems.toString(),
-                        size: Dimensions.height15,color: AppColors.mainBlackColor,)
+                        size: Dimensions.width15,color: AppColors.mainBlackColor,)
                       ):
                       Container(
                         

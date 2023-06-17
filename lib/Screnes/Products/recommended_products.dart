@@ -3,6 +3,7 @@ import 'package:my_app/Widgets/big_Text.dart';
 import 'package:my_app/Widgets/expandable_text.dart';
 import 'package:my_app/Widgets/product_page_icon.dart';
 import 'package:my_app/colors.dart';
+import 'package:my_app/controller/popular_product_controller.dart';
 import 'package:my_app/dimensions.dart';
 import 'package:get/get.dart';
 import 'package:my_app/routes/routes_helper.dart';
@@ -31,8 +32,40 @@ class RecommendedProducts extends StatelessWidget {
                 },
                 child: productPageIcon(icon: Icons.clear),
               ),
-              productPageIcon(icon: Icons.shopping_cart_outlined)
-            ]),
+              GetBuilder<PopularProductController>(builder: (controller){
+                  return Stack(
+                    children: [
+                      productPageIcon(icon: Icons.shopping_cart_outlined),
+                      Get.find<PopularProductController>().totalItems>=1?
+                      Positioned(
+                        right: 3,
+                        top: 3,
+                        child: productPageIcon(icon: Icons.circle,
+                        size: Dimensions.width15,
+                        iconColor: Colors.transparent,
+                        backgroungColor: AppColors.mainColor,),
+                      ):
+                      Container(
+                        
+                      ),
+                       Get.find<PopularProductController>().totalItems>=1?
+                      Positioned(
+                        right: 5,
+                        top: 3,
+                        child: BigText(text: controller.totalItems.toString(),
+                        size: Dimensions.width15,color: AppColors.mainBlackColor,)
+                      ):
+                      Container(
+                        
+                      ),
+
+                    ],
+                  );
+              })
+            
+            ]
+            
+            ),
 
             bottom: PreferredSize(
               child: Container(
@@ -75,7 +108,8 @@ class RecommendedProducts extends StatelessWidget {
         ],
       ),
 
-      bottomNavigationBar: Column(
+      bottomNavigationBar: GetBuilder<PopularProductController>(builder: (controller){
+        return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
          Container(
@@ -86,23 +120,33 @@ class RecommendedProducts extends StatelessWidget {
           child:  Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              productPageIcon(
+              GestureDetector(
+                onTap: () {
+                  controller.setQuantity(false);
+                },
+                child: productPageIcon(
                 iconSize: Dimensions.icon24,
                 icon: Icons.remove,
                 iconColor: Colors.white,
                 backgroungColor: AppColors.mainColor,
+                )
               ),
               Container(
-                child: BigText(text: "\$ ${product.price} X 0",
+                child: BigText(text: "\$ ${product.price} X ${controller.inCartItems}",
                 color: AppColors.mainBlackColor,
                 size: Dimensions.font26,),
               ),
-              productPageIcon(
+              GestureDetector(
+                onTap: () {
+                  controller.setQuantity(true);
+                },
+                child: productPageIcon(
                 iconSize: Dimensions.icon24,
                 icon: Icons.add,
                 iconColor: Colors.white,
                 backgroungColor: AppColors.mainColor,
                 )
+              )
             ],
           ),
 
@@ -137,7 +181,11 @@ class RecommendedProducts extends StatelessWidget {
               iconSize: Dimensions.icon24,)
             ),
 
-            Container(
+            GestureDetector(
+              onTap: () {
+                controller.addItem(product);
+              },
+              child: Container(
               padding: EdgeInsets.only(top: Dimensions.height20, bottom: Dimensions.height20,
               left: Dimensions.width10, right: Dimensions.width10
               ),
@@ -152,6 +200,7 @@ class RecommendedProducts extends StatelessWidget {
                 ],
               ),
             ),
+            )
 
           ],
 
@@ -159,7 +208,10 @@ class RecommendedProducts extends StatelessWidget {
       ),
       
         ],
-      ),
+      );
+
+      
+      })
     );
   }
 }
